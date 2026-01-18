@@ -105,11 +105,20 @@ export function Box3DEditor({
     };
 
     window.addEventListener('resize', handleResize);
+    const resizeObserver = new ResizeObserver(handleResize);
+    if (containerRef.current) {
+      resizeObserver.observe(containerRef.current);
+    }
+    
     handleResize();
-    return () => window.removeEventListener('resize', handleResize);
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      resizeObserver.disconnect();
+    };
   }, []);
 
-  const getMousePos = (e: React.MouseEvent | React.TouchEvent): { x: number; y: number } => {
+  const getMousePos = (e: React.MouseEvent | React.TouchEvent | MouseEvent | TouchEvent): { x: number; y: number } => {
     const canvas = canvasRef.current;
     if (!canvas) return { x: 0, y: 0 };
 
@@ -117,11 +126,17 @@ export function Box3DEditor({
     let clientX: number, clientY: number;
 
     if ('touches' in e) {
-      clientX = e.touches[0].clientX;
-      clientY = e.touches[0].clientY;
+      if (e.touches.length === 0) {
+        // Si no hi ha touches, utilitzem changedTouches
+        clientX = (e as TouchEvent).changedTouches[0]?.clientX || 0;
+        clientY = (e as TouchEvent).changedTouches[0]?.clientY || 0;
+      } else {
+        clientX = e.touches[0].clientX;
+        clientY = e.touches[0].clientY;
+      }
     } else {
-      clientX = e.clientX;
-      clientY = e.clientY;
+      clientX = (e as MouseEvent).clientX;
+      clientY = (e as MouseEvent).clientY;
     }
 
     return {
@@ -131,9 +146,26 @@ export function Box3DEditor({
   };
 
   const findVertexAtPosition = (pos: { x: number; y: number }) => {
-    const threshold = 15 / scale;
+    // Augmentar el threshold per fer-lo més fàcil de clicar
+    const threshold = 20 / scale;
 
+    // Buscar primer als vèrtex de la caixa seleccionada
+    if (selectedBoxId) {
+      const selectedBox = boxes.find(b => b.id === selectedBoxId);
+      if (selectedBox) {
+        for (let i = 0; i < selectedBox.vertices.length; i++) {
+          const v = selectedBox.vertices[i];
+          const dist = Math.sqrt((pos.x - v.x) ** 2 + (pos.y - v.y) ** 2);
+          if (dist < threshold) {
+            return { boxId: selectedBox.id, vertexIndex: i };
+          }
+        }
+      }
+    }
+
+    // Després buscar a les altres caixes
     for (const box of boxes) {
+      if (box.id === selectedBoxId) continue; // Ja hem buscat a aquesta
       for (let i = 0; i < box.vertices.length; i++) {
         const v = box.vertices[i];
         const dist = Math.sqrt((pos.x - v.x) ** 2 + (pos.y - v.y) ** 2);
@@ -147,6 +179,10 @@ export function Box3DEditor({
 
   const handleMouseDown = (e: React.MouseEvent | React.TouchEvent) => {
     if (readOnly) return;
+    
+    e.preventDefault();
+    e.stopPropagation();
+    
     const pos = getMousePos(e);
     const vertex = findVertexAtPosition(pos);
 
@@ -165,22 +201,47 @@ export function Box3DEditor({
     }
   };
 
-  const handleMouseMove = (e: React.MouseEvent | React.TouchEvent) => {
+  const handleMouseMove = useCallback((e: MouseEvent | TouchEvent) => {
     if (!draggingVertex || readOnly) return;
+    
     e.preventDefault();
+    e.stopPropagation();
 
     const pos = getMousePos(e);
     const box = boxes.find(b => b.id === draggingVertex.boxId);
-    if (!box) return;
+    if (!box || !image) return;
+
+    // Limitar les posicions dins de la imatge
+    const clampedX = Math.max(0, Math.min(pos.x, image.width));
+    const clampedY = Math.max(0, Math.min(pos.y, image.height));
 
     const newVertices = [...box.vertices];
-    newVertices[draggingVertex.vertexIndex] = { x: pos.x, y: pos.y };
+    newVertices[draggingVertex.vertexIndex] = { x: clampedX, y: clampedY };
     onUpdateBox(draggingVertex.boxId, newVertices);
-  };
+  }, [draggingVertex, boxes, onUpdateBox, readOnly, image]);
 
-  const handleMouseUp = () => {
+  const handleMouseUp = useCallback(() => {
     setDraggingVertex(null);
-  };
+  }, []);
+
+  // Afegir event listeners globals per millorar l'arrossegament
+  useEffect(() => {
+    if (draggingVertex && !readOnly) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      document.addEventListener('touchmove', handleMouseMove, { passive: false });
+      document.addEventListener('touchend', handleMouseUp);
+      document.addEventListener('touchcancel', handleMouseUp);
+      
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+        document.removeEventListener('touchmove', handleMouseMove);
+        document.removeEventListener('touchend', handleMouseUp);
+        document.removeEventListener('touchcancel', handleMouseUp);
+      };
+    }
+  }, [draggingVertex, readOnly, handleMouseMove, handleMouseUp]);
 
   return (
     <div
@@ -189,14 +250,10 @@ export function Box3DEditor({
     >
       <canvas
         ref={canvasRef}
-        className="absolute inset-0 cursor-crosshair"
+        className="absolute inset-0 cursor-crosshair touch-none"
         onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
         onTouchStart={handleMouseDown}
-        onTouchMove={handleMouseMove}
-        onTouchEnd={handleMouseUp}
+        style={{ touchAction: 'none' }}
       />
       {!readOnly && (
         <motion.button
@@ -261,14 +318,14 @@ function drawBox3D(
   }
   ctx.setLineDash([]);
 
-  // Draw vertices
+  // Draw vertices (més grans per facilitar clic)
   v.forEach((vertex, i) => {
     ctx.beginPath();
-    ctx.arc(vertex.x, vertex.y, isSelected ? 10 : 8, 0, Math.PI * 2);
+    ctx.arc(vertex.x, vertex.y, isSelected ? 12 : 10, 0, Math.PI * 2);
     ctx.fillStyle = color;
     ctx.fill();
     ctx.strokeStyle = '#fff';
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 3;
     ctx.stroke();
   });
 
