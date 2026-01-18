@@ -127,7 +127,6 @@ export function Box3DEditor({
 
     if ('touches' in e) {
       if (e.touches.length === 0) {
-        // Si no hi ha touches, utilitzem changedTouches
         clientX = (e as TouchEvent).changedTouches[0]?.clientX || 0;
         clientY = (e as TouchEvent).changedTouches[0]?.clientY || 0;
       } else {
@@ -146,10 +145,8 @@ export function Box3DEditor({
   };
 
   const findVertexAtPosition = (pos: { x: number; y: number }) => {
-    // Augmentar el threshold per fer-lo més fàcil de clicar
     const threshold = 20 / scale;
 
-    // Buscar primer als vèrtex de la caixa seleccionada
     if (selectedBoxId) {
       const selectedBox = boxes.find(b => b.id === selectedBoxId);
       if (selectedBox) {
@@ -163,9 +160,8 @@ export function Box3DEditor({
       }
     }
 
-    // Després buscar a les altres caixes
     for (const box of boxes) {
-      if (box.id === selectedBoxId) continue; // Ja hem buscat a aquesta
+      if (box.id === selectedBoxId) continue;
       for (let i = 0; i < box.vertices.length; i++) {
         const v = box.vertices[i];
         const dist = Math.sqrt((pos.x - v.x) ** 2 + (pos.y - v.y) ** 2);
@@ -190,7 +186,6 @@ export function Box3DEditor({
       setDraggingVertex(vertex);
       onSelectBox(vertex.boxId);
     } else {
-      // Check if clicked inside a box
       for (const box of boxes) {
         if (isPointInBox(pos, box)) {
           onSelectBox(box.id);
@@ -211,7 +206,6 @@ export function Box3DEditor({
     const box = boxes.find(b => b.id === draggingVertex.boxId);
     if (!box || !image) return;
 
-    // Limitar les posicions dins de la imatge
     const clampedX = Math.max(0, Math.min(pos.x, image.width));
     const clampedY = Math.max(0, Math.min(pos.y, image.height));
 
@@ -224,7 +218,6 @@ export function Box3DEditor({
     setDraggingVertex(null);
   }, []);
 
-  // Afegir event listeners globals per millorar l'arrossegament
   useEffect(() => {
     if (draggingVertex && !readOnly) {
       document.addEventListener('mousemove', handleMouseMove);
@@ -286,7 +279,8 @@ function drawBox3D(
 
   ctx.lineWidth = isSelected ? 6 : 5;
   ctx.strokeStyle = color;
-  ctx.fillStyle = color.replace(')', ', 0.15)').replace('hsl', 'hsla');
+  // Augmentar l'opacitat de 0.15 a 0.45 per fer-la més visible
+  ctx.fillStyle = color.replace(')', ', 0.45)').replace('hsl', 'hsla');
 
   // Front face
   ctx.beginPath();
@@ -411,7 +405,6 @@ function isPointInBox(pos: { x: number; y: number }, box: Box3D): boolean {
   const v = box.vertices;
   if (v.length < 4) return false;
 
-  // Simple bounding box check for front face
   const minX = Math.min(v[0].x, v[1].x, v[2].x, v[3].x);
   const maxX = Math.max(v[0].x, v[1].x, v[2].x, v[3].x);
   const minY = Math.min(v[0].y, v[1].y, v[2].y, v[3].y);
