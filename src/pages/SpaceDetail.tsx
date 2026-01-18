@@ -31,11 +31,13 @@ import {
 export function SpaceDetail() {
   const { spaceId } = useParams<{ spaceId: string }>();
   const navigate = useNavigate();
-  const { getSpace, addMeasurement, updateMeasurement, deleteMeasurement, addBox, updateBox, deleteBox } = useApp();
+  const { spaces, getSpace, addMeasurement, updateMeasurement, deleteMeasurement, addBox, updateBox, deleteBox } = useApp();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const space = getSpace(spaceId || '');
-  const [selectedMeasurement, setSelectedMeasurement] = useState<Measurement | null>(null);
+  // Utilitzar directament l'space dels spaces per tenir sempre les dades actualitzades
+  const space = spaces.find(s => s.id === spaceId);
+  
+  const [selectedMeasurementId, setSelectedMeasurementId] = useState<string | null>(null);
   const [selectedBoxId, setSelectedBoxId] = useState<string | null>(null);
   const [dimensionSheetOpen, setDimensionSheetOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -45,12 +47,17 @@ export function SpaceDetail() {
   const [newName, setNewName] = useState('');
   const [imageSize, setImageSize] = useState({ width: 800, height: 600 });
 
-  useEffect(() => {
-    if (space && space.measurements.length > 0 && !selectedMeasurement) {
-      setSelectedMeasurement(space.measurements[0]);
-    }
-  }, [space]);
+  // Obtenir el measurement seleccionat
+  const selectedMeasurement = space?.measurements.find(m => m.id === selectedMeasurementId) || null;
 
+  // Seleccionar automàticament el primer measurement si n'hi ha
+  useEffect(() => {
+    if (space && space.measurements.length > 0 && !selectedMeasurementId) {
+      setSelectedMeasurementId(space.measurements[0].id);
+    }
+  }, [space?.measurements.length]);
+
+  // Carregar la mida de la imatge
   useEffect(() => {
     if (selectedMeasurement?.photoBase64) {
       const img = new Image();
@@ -83,6 +90,14 @@ export function SpaceDetail() {
           boxes: [],
         };
         addMeasurement(spaceId, newMeasurement);
+        
+        // Seleccionar el nou measurement després d'afegir-lo
+        setTimeout(() => {
+          const updatedSpace = spaces.find(s => s.id === spaceId);
+          if (updatedSpace && updatedSpace.measurements.length > 0) {
+            setSelectedMeasurementId(updatedSpace.measurements[updatedSpace.measurements.length - 1].id);
+          }
+        }, 100);
       };
       reader.readAsDataURL(file);
     }
@@ -94,39 +109,27 @@ export function SpaceDetail() {
       const newBox = createDefaultBox3D(imageSize.width, imageSize.height, colorIndex);
       addBox(spaceId, selectedMeasurement.id, newBox);
       
-      // Refresh selected measurement
-      const updatedSpace = getSpace(spaceId);
-      const updatedMeasurement = updatedSpace?.measurements.find(m => m.id === selectedMeasurement.id);
-      if (updatedMeasurement) {
-        setSelectedMeasurement(updatedMeasurement);
-        setSelectedBoxId(updatedMeasurement.boxes[updatedMeasurement.boxes.length - 1]?.id || null);
-      }
+      // Seleccionar la nova caixa automàticament
+      setTimeout(() => {
+        const updatedSpace = spaces.find(s => s.id === spaceId);
+        const updatedMeasurement = updatedSpace?.measurements.find(m => m.id === selectedMeasurement.id);
+        if (updatedMeasurement && updatedMeasurement.boxes.length > 0) {
+          setSelectedBoxId(updatedMeasurement.boxes[updatedMeasurement.boxes.length - 1].id);
+          setDimensionSheetOpen(true);
+        }
+      }, 100);
     }
   };
 
   const handleUpdateBoxVertices = (boxId: string, vertices: Vertex[]) => {
     if (spaceId && selectedMeasurement) {
       updateBox(spaceId, selectedMeasurement.id, boxId, { vertices });
-      
-      // Refresh selected measurement
-      const updatedSpace = getSpace(spaceId);
-      const updatedMeasurement = updatedSpace?.measurements.find(m => m.id === selectedMeasurement.id);
-      if (updatedMeasurement) {
-        setSelectedMeasurement(updatedMeasurement);
-      }
     }
   };
 
   const handleSaveDimensions = (dimensions: { width: number; height: number; depth: number }, label: string, color: string) => {
     if (spaceId && selectedMeasurement && selectedBoxId) {
       updateBox(spaceId, selectedMeasurement.id, selectedBoxId, { dimensions, label, color });
-      
-      // Refresh selected measurement
-      const updatedSpace = getSpace(spaceId);
-      const updatedMeasurement = updatedSpace?.measurements.find(m => m.id === selectedMeasurement.id);
-      if (updatedMeasurement) {
-        setSelectedMeasurement(updatedMeasurement);
-      }
     }
   };
 
@@ -135,7 +138,7 @@ export function SpaceDetail() {
       deleteMeasurement(spaceId, measurementToDelete.id);
       setMeasurementToDelete(null);
       setDeleteDialogOpen(false);
-      setSelectedMeasurement(null);
+      setSelectedMeasurementId(null);
     }
   };
 
@@ -145,13 +148,6 @@ export function SpaceDetail() {
       setBoxToDelete(null);
       setDeleteDialogOpen(false);
       setSelectedBoxId(null);
-      
-      // Refresh selected measurement
-      const updatedSpace = getSpace(spaceId);
-      const updatedMeasurement = updatedSpace?.measurements.find(m => m.id === selectedMeasurement.id);
-      if (updatedMeasurement) {
-        setSelectedMeasurement(updatedMeasurement);
-      }
     }
   };
 
@@ -159,12 +155,6 @@ export function SpaceDetail() {
     if (spaceId && selectedMeasurement && newName.trim()) {
       updateMeasurement(spaceId, selectedMeasurement.id, { name: newName.trim() });
       setRenameDialogOpen(false);
-      
-      const updatedSpace = getSpace(spaceId);
-      const updatedMeasurement = updatedSpace?.measurements.find(m => m.id === selectedMeasurement.id);
-      if (updatedMeasurement) {
-        setSelectedMeasurement(updatedMeasurement);
-      }
     }
   };
 
@@ -216,11 +206,11 @@ export function SpaceDetail() {
                 <button
                   key={m.id}
                   onClick={() => {
-                    setSelectedMeasurement(m);
+                    setSelectedMeasurementId(m.id);
                     setSelectedBoxId(null);
                   }}
                   className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
-                    selectedMeasurement?.id === m.id
+                    selectedMeasurementId === m.id
                       ? 'border-primary ring-2 ring-primary/30'
                       : 'border-border hover:border-primary/50'
                   }`}
