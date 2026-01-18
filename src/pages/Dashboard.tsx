@@ -49,10 +49,10 @@ export function Dashboard() {
           className="mb-8"
         >
           <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-2">
-            Your Spaces
+            Els teus espais
           </h1>
           <p className="text-muted-foreground">
-            Organize measurements by room or area
+            Organitza les mesures per habitació o àrea
           </p>
         </motion.div>
 
@@ -82,14 +82,14 @@ export function Dashboard() {
               <Sparkles className="w-10 h-10 text-primary-foreground" />
             </div>
             <h2 className="font-display text-2xl font-bold text-foreground mb-2">
-              Start Your First Space
+              Crea el teu primer espai
             </h2>
             <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
-              Create a space for each room or area you want to measure
+              Crea un espai per a cada habitació o àrea que vulguis mesurar
             </p>
             <Button variant="hero" size="lg" onClick={() => setCreateDialogOpen(true)}>
               <Plus className="w-5 h-5" />
-              Create Space
+              Crear espai
             </Button>
           </motion.div>
         )}
@@ -109,7 +109,7 @@ export function Dashboard() {
               onClick={() => setCreateDialogOpen(true)}
             >
               <Plus className="w-6 h-6" />
-              Add Space
+              Afegir espai
             </Button>
           </motion.div>
         )}
@@ -137,8 +137,8 @@ export function Dashboard() {
         open={deleteDialogOpen}
         onOpenChange={setDeleteDialogOpen}
         onConfirm={handleDeleteSpace}
-        title="Delete Space?"
-        description={`Are you sure you want to delete "${spaceToDelete?.name}"? This will remove all measurements and photos in this space. This action cannot be undone.`}
+        title="Esborrar espai?"
+        description={`Estàs segur que vols esborrar "${spaceToDelete?.name}"? Això eliminarà totes les mesures i fotos d'aquest espai. Aquesta acció no es pot desfer.`}
       />
     </div>
   );
