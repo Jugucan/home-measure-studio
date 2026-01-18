@@ -71,7 +71,7 @@ export function SpaceDetail() {
   if (!space) {
     return (
       <div className="min-h-screen gradient-hero flex items-center justify-center">
-        <p className="text-muted-foreground">Space not found</p>
+        <p className="text-muted-foreground">No s'ha trobat l'espai</p>
       </div>
     );
   }
@@ -115,7 +115,6 @@ export function SpaceDetail() {
         const updatedMeasurement = updatedSpace?.measurements.find(m => m.id === selectedMeasurement.id);
         if (updatedMeasurement && updatedMeasurement.boxes.length > 0) {
           setSelectedBoxId(updatedMeasurement.boxes[updatedMeasurement.boxes.length - 1].id);
-          // NO obrim la finestra aquí - l'usuari la obrirà quan vulgui
         }
       }, 100);
     }
@@ -177,7 +176,7 @@ export function SpaceDetail() {
             className="mb-4 -ml-2"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Spaces
+            Tornar als espais
           </Button>
 
           <div className="flex items-center gap-3">
@@ -187,7 +186,7 @@ export function SpaceDetail() {
                 {space.name}
               </h1>
               <p className="text-muted-foreground text-sm">
-                {space.measurements.length} photo{space.measurements.length !== 1 ? 's' : ''}
+                {space.measurements.length} foto{space.measurements.length !== 1 ? 's' : ''}
               </p>
             </div>
           </div>
@@ -250,7 +249,7 @@ export function SpaceDetail() {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="sm">
-                    Actions <ChevronDown className="w-4 h-4 ml-1" />
+                    Accions <ChevronDown className="w-4 h-4 ml-1" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
@@ -259,7 +258,7 @@ export function SpaceDetail() {
                     setRenameDialogOpen(true);
                   }}>
                     <Pencil className="w-4 h-4 mr-2" />
-                    Rename
+                    Reanomenar
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     className="text-destructive"
@@ -269,7 +268,7 @@ export function SpaceDetail() {
                     }}
                   >
                     <Trash2 className="w-4 h-4 mr-2" />
-                    Delete Photo
+                    Esborrar foto
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -297,7 +296,7 @@ export function SpaceDetail() {
             {/* Measurement Summary */}
             <div>
               <h3 className="font-display text-lg font-semibold text-foreground mb-3">
-                Measurements
+                Mesures
               </h3>
               <MeasurementSummary
                 boxes={selectedMeasurement.boxes}
@@ -324,15 +323,15 @@ export function SpaceDetail() {
               <Camera className="w-10 h-10 text-muted-foreground" />
             </div>
             <h2 className="font-display text-xl font-bold text-foreground mb-2">
-              Add Your First Photo
+              Afegeix la teva primera foto
             </h2>
             <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
-              Upload or take a photo to start adding measurements
+              Puja o fes una foto per començar a afegir mesures
             </p>
             <div className="flex gap-3 justify-center flex-wrap">
               <Button variant="hero" size="lg" onClick={() => fileInputRef.current?.click()}>
                 <Upload className="w-5 h-5" />
-                Upload Photo
+                Pujar foto
               </Button>
             </div>
           </motion.div>
@@ -367,8 +366,8 @@ export function SpaceDetail() {
           }
         }}
         onConfirm={handleDeleteMeasurement}
-        title="Delete Photo?"
-        description="Are you sure you want to delete this photo and all its measurements? This action cannot be undone."
+        title="Esborrar foto?"
+        description="Estàs segur que vols esborrar aquesta foto i totes les seves mesures? Aquesta acció no es pot desfer."
       />
 
       <DeleteConfirmDialog
@@ -380,33 +379,33 @@ export function SpaceDetail() {
           }
         }}
         onConfirm={handleDeleteBox}
-        title="Delete Measurement?"
-        description="Are you sure you want to delete this measurement box? This action cannot be undone."
+        title="Esborrar mesura?"
+        description="Estàs segur que vols esborrar aquesta caixa de mesura? Aquesta acció no es pot desfer."
       />
 
       {/* Rename Dialog */}
       <Dialog open={renameDialogOpen} onOpenChange={setRenameDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Rename Photo</DialogTitle>
-            <DialogDescription>Enter a new name for this photo</DialogDescription>
+            <DialogTitle>Reanomenar foto</DialogTitle>
+            <DialogDescription>Introdueix un nou nom per a aquesta foto</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="photoName">Name</Label>
+              <Label htmlFor="photoName">Nom</Label>
               <Input
                 id="photoName"
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
-                placeholder="Photo name"
+                placeholder="Nom de la foto"
               />
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setRenameDialogOpen(false)}>
-              Cancel
+              Cancel·lar
             </Button>
-            <Button onClick={handleRename}>Save</Button>
+            <Button onClick={handleRename}>Desar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
