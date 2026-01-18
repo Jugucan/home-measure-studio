@@ -58,18 +58,18 @@ export function DimensionInputSheet({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="bottom" className="h-auto max-h-[80vh] rounded-t-2xl">
         <SheetHeader className="text-left pb-4">
-          <SheetTitle className="font-display">Edit Measurement</SheetTitle>
+          <SheetTitle className="font-display">Editar mesura</SheetTitle>
           <SheetDescription>
-            Enter the real-world dimensions for this box
+            Introdueix les dimensions reals d'aquest objecte
           </SheetDescription>
         </SheetHeader>
 
         <div className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="label">Label (optional)</Label>
+            <Label htmlFor="label">Etiqueta (opcional)</Label>
             <Input
               id="label"
-              placeholder="e.g., Wardrobe, TV Stand"
+              placeholder="p. ex., Armari, Moble TV"
               value={label}
               onChange={(e) => setLabel(e.target.value)}
             />
@@ -77,7 +77,7 @@ export function DimensionInputSheet({
 
           <div className="grid grid-cols-3 gap-3">
             <div className="space-y-2">
-              <Label htmlFor="width">Width (cm)</Label>
+              <Label htmlFor="width">Amplada (cm)</Label>
               <Input
                 id="width"
                 type="number"
@@ -88,7 +88,7 @@ export function DimensionInputSheet({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="height">Height (cm)</Label>
+              <Label htmlFor="height">Alçada (cm)</Label>
               <Input
                 id="height"
                 type="number"
@@ -99,7 +99,7 @@ export function DimensionInputSheet({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="depth">Depth (cm)</Label>
+              <Label htmlFor="depth">Fondària (cm)</Label>
               <Input
                 id="depth"
                 type="number"
@@ -112,7 +112,7 @@ export function DimensionInputSheet({
           </div>
 
           <div className="space-y-2">
-            <Label>Box Color</Label>
+            <Label>Color de la caixa</Label>
             <div className="flex gap-2 flex-wrap">
               {BOX_COLORS.map((c) => (
                 <button
@@ -135,10 +135,10 @@ export function DimensionInputSheet({
               className="flex-1"
               onClick={() => onOpenChange(false)}
             >
-              Cancel
+              Cancel·lar
             </Button>
             <Button variant="hero" className="flex-1" onClick={handleSave}>
-              Save Dimensions
+              Desar dimensions
             </Button>
           </div>
         </div>
