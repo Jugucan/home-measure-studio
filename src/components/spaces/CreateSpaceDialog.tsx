@@ -46,21 +46,21 @@ export function CreateSpaceDialog({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="font-display">
-            {mode === 'create' ? 'Create New Space' : 'Edit Space'}
+            {mode === 'create' ? 'Crear nou espai' : 'Editar espai'}
           </DialogTitle>
           <DialogDescription>
             {mode === 'create'
-              ? 'Add a new room or area to organize your measurements.'
-              : 'Update the space name and icon.'}
+              ? 'Afegeix una nova habitació o àrea per organitzar les teves mesures.'
+              : 'Actualitza el nom i la icona de l\'espai.'}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="spaceName">Space Name</Label>
+            <Label htmlFor="spaceName">Nom de l'espai</Label>
             <Input
               id="spaceName"
-              placeholder="e.g., Kitchen, Master Bedroom"
+              placeholder="p. ex., Cuina, Habitació principal"
               value={name}
               onChange={(e) => setName(e.target.value)}
               autoFocus
@@ -68,7 +68,7 @@ export function CreateSpaceDialog({
           </div>
 
           <div className="space-y-2">
-            <Label>Icon</Label>
+            <Label>Icona</Label>
             <div className="grid grid-cols-5 gap-2">
               {SPACE_ICONS.map(({ name: iconName, icon }) => (
                 <button
@@ -90,10 +90,10 @@ export function CreateSpaceDialog({
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
+              Cancel·lar
             </Button>
             <Button type="submit" variant="hero" disabled={!name.trim()}>
-              {mode === 'create' ? 'Create Space' : 'Save Changes'}
+              {mode === 'create' ? 'Crear espai' : 'Desar canvis'}
             </Button>
           </DialogFooter>
         </form>
