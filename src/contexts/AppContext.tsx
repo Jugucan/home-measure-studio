@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react';
 import { Space, Measurement, Box3D, User } from '@/types';
 
 // Simple UUID generator
@@ -8,6 +8,49 @@ const generateId = (): string => {
     const v = c === 'x' ? r : (r & 0x3 | 0x8);
     return v.toString(16);
   });
+};
+
+// Claus per localStorage
+const STORAGE_KEYS = {
+  USER: 'mua_app_user',
+  SPACES: 'mua_app_spaces',
+};
+
+// Funcions per guardar i carregar dades
+const saveToStorage = (key: string, data: any) => {
+  try {
+    localStorage.setItem(key, JSON.stringify(data));
+  } catch (error) {
+    console.error('Error guardant a localStorage:', error);
+  }
+};
+
+const loadFromStorage = <T,>(key: string, defaultValue: T): T => {
+  try {
+    const stored = localStorage.getItem(key);
+    if (!stored) return defaultValue;
+    
+    const parsed = JSON.parse(stored);
+    
+    // Convertir dates si és necessari
+    if (key === STORAGE_KEYS.SPACES && Array.isArray(parsed)) {
+      return parsed.map(space => ({
+        ...space,
+        createdAt: new Date(space.createdAt),
+        updatedAt: new Date(space.updatedAt),
+        measurements: space.measurements.map((m: any) => ({
+          ...m,
+          createdAt: new Date(m.createdAt),
+          updatedAt: new Date(m.updatedAt),
+        })),
+      })) as T;
+    }
+    
+    return parsed;
+  } catch (error) {
+    console.error('Error carregant de localStorage:', error);
+    return defaultValue;
+  }
 };
 
 interface AppContextType {
@@ -34,7 +77,7 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-// Demo data for preview
+// Demo data per quan no hi ha res guardat
 const createDemoData = (): Space[] => [
   {
     id: generateId(),
@@ -55,47 +98,69 @@ const createDemoData = (): Space[] => [
 ];
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>({
-    id: 'demo-user',
-    email: 'demo@example.com',
-    displayName: 'Demo User',
+  // Carregar dades de localStorage en iniciar
+  const [user, setUser] = useState<User | null>(() => 
+    loadFromStorage(STORAGE_KEYS.USER, {
+      id: 'demo-user',
+      email: 'demo@example.com',
+      displayName: 'Demo User',
+    })
+  );
+  
+  const [spaces, setSpaces] = useState<Space[]>(() => {
+    const stored = loadFromStorage<Space[]>(STORAGE_KEYS.SPACES, []);
+    // Si no hi ha espais guardats, crear demo data
+    return stored.length > 0 ? stored : createDemoData();
   });
-  const [spaces, setSpaces] = useState<Space[]>(createDemoData());
+  
   const [isLoading, setIsLoading] = useState(false);
 
   const isAuthenticated = user !== null;
+
+  // Guardar spaces cada vegada que canviïn
+  useEffect(() => {
+    saveToStorage(STORAGE_KEYS.SPACES, spaces);
+  }, [spaces]);
+
+  // Guardar user cada vegada que canviï
+  useEffect(() => {
+    saveToStorage(STORAGE_KEYS.USER, user);
+  }, [user]);
 
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     // Simulate login - replace with Firebase
     await new Promise(resolve => setTimeout(resolve, 1000));
-    setUser({
+    const newUser = {
       id: generateId(),
       email,
       displayName: email.split('@')[0],
-    });
+    };
+    setUser(newUser);
     setIsLoading(false);
   };
 
   const loginWithGoogle = async () => {
     setIsLoading(true);
     await new Promise(resolve => setTimeout(resolve, 1000));
-    setUser({
+    const newUser = {
       id: generateId(),
       email: 'google@example.com',
       displayName: 'Google User',
-    });
+    };
+    setUser(newUser);
     setIsLoading(false);
   };
 
   const signup = async (email: string, password: string, displayName: string) => {
     setIsLoading(true);
     await new Promise(resolve => setTimeout(resolve, 1000));
-    setUser({
+    const newUser = {
       id: generateId(),
       email,
       displayName,
-    });
+    };
+    setUser(newUser);
     setSpaces(createDemoData());
     setIsLoading(false);
   };
@@ -103,6 +168,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const logout = () => {
     setUser(null);
     setSpaces([]);
+    // Esborrar dades de localStorage
+    localStorage.removeItem(STORAGE_KEYS.USER);
+    localStorage.removeItem(STORAGE_KEYS.SPACES);
   };
 
   const createSpace = useCallback((name: string, icon: string) => {
@@ -114,21 +182,28 @@ export function AppProvider({ children }: { children: ReactNode }) {
       createdAt: new Date(),
       updatedAt: new Date(),
     };
-    setSpaces(prev => [...prev, newSpace]);
+    setSpaces(prev => {
+      const updated = [...prev, newSpace];
+      return updated;
+    });
   }, []);
 
   const updateSpace = useCallback((spaceId: string, updates: Partial<Space>) => {
-    setSpaces(prev =>
-      prev.map(space =>
+    setSpaces(prev => {
+      const updated = prev.map(space =>
         space.id === spaceId
           ? { ...space, ...updates, updatedAt: new Date() }
           : space
-      )
-    );
+      );
+      return updated;
+    });
   }, []);
 
   const deleteSpace = useCallback((spaceId: string) => {
-    setSpaces(prev => prev.filter(space => space.id !== spaceId));
+    setSpaces(prev => {
+      const updated = prev.filter(space => space.id !== spaceId);
+      return updated;
+    });
   }, []);
 
   const addMeasurement = useCallback(
@@ -139,8 +214,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         createdAt: new Date(),
         updatedAt: new Date(),
       };
-      setSpaces(prev =>
-        prev.map(space =>
+      setSpaces(prev => {
+        const updated = prev.map(space =>
           space.id === spaceId
             ? {
                 ...space,
@@ -148,16 +223,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
                 updatedAt: new Date(),
               }
             : space
-        )
-      );
+        );
+        return updated;
+      });
     },
     []
   );
 
   const updateMeasurement = useCallback(
     (spaceId: string, measurementId: string, updates: Partial<Measurement>) => {
-      setSpaces(prev =>
-        prev.map(space =>
+      setSpaces(prev => {
+        const updated = prev.map(space =>
           space.id === spaceId
             ? {
                 ...space,
@@ -169,15 +245,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
                 updatedAt: new Date(),
               }
             : space
-        )
-      );
+        );
+        return updated;
+      });
     },
     []
   );
 
   const deleteMeasurement = useCallback((spaceId: string, measurementId: string) => {
-    setSpaces(prev =>
-      prev.map(space =>
+    setSpaces(prev => {
+      const updated = prev.map(space =>
         space.id === spaceId
           ? {
               ...space,
@@ -185,15 +262,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
               updatedAt: new Date(),
             }
           : space
-      )
-    );
+      );
+      return updated;
+    });
   }, []);
 
   const addBox = useCallback(
     (spaceId: string, measurementId: string, box: Omit<Box3D, 'id'>) => {
       const newBox: Box3D = { ...box, id: generateId() };
-      setSpaces(prev =>
-        prev.map(space =>
+      setSpaces(prev => {
+        const updated = prev.map(space =>
           space.id === spaceId
             ? {
                 ...space,
@@ -205,16 +283,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
                 updatedAt: new Date(),
               }
             : space
-        )
-      );
+        );
+        return updated;
+      });
     },
     []
   );
 
   const updateBox = useCallback(
     (spaceId: string, measurementId: string, boxId: string, updates: Partial<Box3D>) => {
-      setSpaces(prev =>
-        prev.map(space =>
+      setSpaces(prev => {
+        const updated = prev.map(space =>
           space.id === spaceId
             ? {
                 ...space,
@@ -232,15 +311,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
                 updatedAt: new Date(),
               }
             : space
-        )
-      );
+        );
+        return updated;
+      });
     },
     []
   );
 
   const deleteBox = useCallback((spaceId: string, measurementId: string, boxId: string) => {
-    setSpaces(prev =>
-      prev.map(space =>
+    setSpaces(prev => {
+      const updated = prev.map(space =>
         space.id === spaceId
           ? {
               ...space,
@@ -252,8 +332,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
               updatedAt: new Date(),
             }
           : space
-      )
-    );
+      );
+      return updated;
+    });
   }, []);
 
   const getSpace = useCallback((spaceId: string) => {
