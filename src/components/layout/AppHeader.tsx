@@ -47,7 +47,7 @@ export function AppHeader() {
             </div>
             <DropdownMenuItem onClick={logout} className="text-destructive cursor-pointer">
               <LogOut className="mr-2 h-4 w-4" />
-              Sign out
+              Tancar sessió
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
