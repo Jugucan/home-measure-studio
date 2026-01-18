@@ -109,13 +109,13 @@ export function SpaceDetail() {
       const newBox = createDefaultBox3D(imageSize.width, imageSize.height, colorIndex);
       addBox(spaceId, selectedMeasurement.id, newBox);
       
-      // Seleccionar la nova caixa automàticament
+      // Seleccionar la nova caixa automàticament SENSE obrir la finestra
       setTimeout(() => {
         const updatedSpace = spaces.find(s => s.id === spaceId);
         const updatedMeasurement = updatedSpace?.measurements.find(m => m.id === selectedMeasurement.id);
         if (updatedMeasurement && updatedMeasurement.boxes.length > 0) {
           setSelectedBoxId(updatedMeasurement.boxes[updatedMeasurement.boxes.length - 1].id);
-          setDimensionSheetOpen(true);
+          // NO obrim la finestra aquí - l'usuari la obrirà quan vulgui
         }
       }, 100);
     }
@@ -284,10 +284,8 @@ export function SpaceDetail() {
                     boxes={selectedMeasurement.boxes}
                     selectedBoxId={selectedBoxId}
                     onSelectBox={(boxId) => {
+                      // NOMÉS seleccionem la caixa, NO obrim la finestra
                       setSelectedBoxId(boxId);
-                      if (boxId) {
-                        setDimensionSheetOpen(true);
-                      }
                     }}
                     onUpdateBox={handleUpdateBoxVertices}
                     onAddBox={handleAddBox}
@@ -305,6 +303,7 @@ export function SpaceDetail() {
                 boxes={selectedMeasurement.boxes}
                 selectedBoxId={selectedBoxId}
                 onSelectBox={(boxId) => {
+                  // AQUÍ SÍ que obrim la finestra perquè l'usuari ha clicat a la llista
                   setSelectedBoxId(boxId);
                   setDimensionSheetOpen(true);
                 }}
