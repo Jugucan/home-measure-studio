@@ -19,7 +19,7 @@ export function AppHeader() {
           <div className="w-9 h-9 rounded-lg gradient-primary flex items-center justify-center shadow-soft">
             <Ruler className="w-5 h-5 text-primary-foreground" />
           </div>
-          <span className="font-display text-lg font-bold text-foreground">cobboc</span>
+          <span className="font-display text-lg font-bold text-foreground">cubbuc</span>
         </div>
 
         <DropdownMenu>
