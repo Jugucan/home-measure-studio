@@ -42,27 +42,32 @@ export function MeasurementSummary({
           >
             <CardContent className="p-4">
               <div className="flex items-start justify-between gap-2">
-                <div className="flex items-center gap-3">
+                <div className="flex items-start gap-3 flex-1">
                   <div
-                    className="w-4 h-4 rounded-full flex-shrink-0"
+                    className="w-4 h-4 rounded-full flex-shrink-0 mt-1"
                     style={{ backgroundColor: colorInfo.value }}
                   />
-                  <div>
-                    <h4 className="font-semibold text-sm text-foreground">
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-semibold text-sm text-foreground mb-1">
                       {box.label || `Caixa ${index + 1}`}
                     </h4>
                     {hasDimensions ? (
-                      <p className="text-sm text-muted-foreground mt-1">
+                      <p className="text-sm text-muted-foreground">
                         <span className="font-medium">{box.dimensions.width || '—'}</span>
-                        <span className="text-xs mx-1">×</span>
+                        <span className="text-xs mx-1">(ample) ×</span>
                         <span className="font-medium">{box.dimensions.height || '—'}</span>
-                        <span className="text-xs mx-1">×</span>
+                        <span className="text-xs mx-1">(alt) ×</span>
                         <span className="font-medium">{box.dimensions.depth || '—'}</span>
-                        <span className="text-xs ml-1">cm</span>
+                        <span className="text-xs ml-1">(fons) cm</span>
                       </p>
                     ) : (
-                      <p className="text-sm text-muted-foreground mt-1 italic">
+                      <p className="text-sm text-muted-foreground italic">
                         Sense dimensions
+                      </p>
+                    )}
+                    {box.notes && (
+                      <p className="text-xs text-muted-foreground mt-2 line-clamp-2">
+                        {box.notes}
                       </p>
                     )}
                   </div>
@@ -70,7 +75,7 @@ export function MeasurementSummary({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                  className="h-8 w-8 text-muted-foreground hover:text-destructive flex-shrink-0"
                   onClick={(e) => {
                     e.stopPropagation();
                     onDeleteBox(box.id);
