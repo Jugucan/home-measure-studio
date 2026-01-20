@@ -76,32 +76,38 @@ export function SpaceDetail() {
     );
   }
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file && spaceId) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const base64 = event.target?.result as string;
-        const newMeasurement: Omit<Measurement, 'id' | 'createdAt' | 'updatedAt'> = {
-          name: file.name.replace(/\.[^/.]+$/, ''),
-          photoUrl: '',
-          photoBase64: base64,
-          notes: '',
-          boxes: [],
-        };
-        addMeasurement(spaceId, newMeasurement);
-        
-        // Seleccionar el nou measurement després d'afegir-lo
-        setTimeout(() => {
-          const updatedSpace = spaces.find(s => s.id === spaceId);
-          if (updatedSpace && updatedSpace.measurements.length > 0) {
-            setSelectedMeasurementId(updatedSpace.measurements[updatedSpace.measurements.length - 1].id);
-          }
-        }, 100);
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+  if (file && spaceId) {
+    try {
+      // Importar la funció de Cloudinary
+      const { uploadImageToCloudinary } = await import('@/lib/cloudinary');
+      
+      // Pujar la imatge a Cloudinary
+      const imageUrl = await uploadImageToCloudinary(file);
+      
+      const newMeasurement: Omit<Measurement, 'id' | 'createdAt' | 'updatedAt'> = {
+        name: file.name.replace(/\.[^/.]+$/, ''),
+        photoUrl: imageUrl,
+        photoBase64: '', // Ja no usem base64
+        notes: '',
+        boxes: [],
       };
-      reader.readAsDataURL(file);
+      addMeasurement(spaceId, newMeasurement);
+      
+      // Seleccionar el nou measurement després d'afegir-lo
+      setTimeout(() => {
+        const updatedSpace = spaces.find(s => s.id === spaceId);
+        if (updatedSpace && updatedSpace.measurements.length > 0) {
+          setSelectedMeasurementId(updatedSpace.measurements[updatedSpace.measurements.length - 1].id);
+        }
+      }, 100);
+    } catch (error) {
+      console.error('Error processant la imatge:', error);
+      alert('Error pujant la imatge. Comprova la connexió a internet.');
     }
-  };
+  }
+};
 
   const handleAddBox = () => {
     if (spaceId && selectedMeasurement) {
