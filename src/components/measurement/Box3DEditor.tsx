@@ -329,9 +329,7 @@ function drawBox3D(
   }
 
   // Draw label
-  if (box.label) {
-    drawLabel(ctx, box.label, v, color);
-  }
+  
 }
 
 function drawMeasurements(
@@ -373,32 +371,6 @@ function drawTextWithOutline(ctx: CanvasRenderingContext2D, text: string, x: num
   ctx.strokeText(text, x, y);
   ctx.fillStyle = '#1a1a1a';
   ctx.fillText(text, x, y);
-}
-
-function drawLabel(
-  ctx: CanvasRenderingContext2D,
-  label: string,
-  v: { x: number; y: number }[],
-  color: string
-) {
-  const centerX = v.reduce((sum, p) => sum + p.x, 0) / v.length;
-  const centerY = v.reduce((sum, p) => sum + p.y, 0) / v.length;
-
-  ctx.font = 'bold 18px Inter, sans-serif';
-  const textMetrics = ctx.measureText(label);
-  const padding = 8;
-  const width = textMetrics.width + padding * 2;
-  const height = 28;
-
-  ctx.fillStyle = color;
-  ctx.beginPath();
-  ctx.roundRect(centerX - width / 2, centerY - height / 2, width, height, 6);
-  ctx.fill();
-
-  ctx.fillStyle = '#fff';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText(label, centerX, centerY);
 }
 
 function isPointInBox(pos: { x: number; y: number }, box: Box3D): boolean {
