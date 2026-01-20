@@ -132,11 +132,11 @@ export function SpaceDetail() {
     }
   };
 
-  const handleSaveDimensions = (dimensions: { width: number; height: number; depth: number }, label: string, color: string) => {
-    if (spaceId && selectedMeasurement && selectedBoxId) {
-      updateBox(spaceId, selectedMeasurement.id, selectedBoxId, { dimensions, label, color });
-    }
-  };
+  const handleSaveDimensions = (dimensions: { width: number; height: number; depth: number }, label: string, color: string, notes: string) => {
+  if (spaceId && selectedMeasurement && selectedBoxId) {
+    updateBox(spaceId, selectedMeasurement.id, selectedBoxId, { dimensions, label, color, notes });
+  }
+};
 
   const handleDeleteMeasurement = () => {
     if (spaceId && measurementToDelete) {
