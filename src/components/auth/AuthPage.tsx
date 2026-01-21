@@ -25,14 +25,14 @@ export function AuthPage() {
         await login(email, password);
       }
     } catch (err) {
-      setError('Authentication failed. Please try again.');
+      setError('Error d\'autenticació. Torna-ho a provar.');
     }
   };
 
   const features = [
-    { icon: Home, title: 'Organize by Rooms', desc: 'Create spaces for each area' },
-    { icon: Camera, title: 'Photo Measurements', desc: 'Overlay 3D boxes on photos' },
-    { icon: Box, title: 'Precise Dimensions', desc: 'Track width, height & depth' },
+    { icon: Home, title: 'Organitza per espais', desc: 'Crea zones per cada àrea' },
+    { icon: Camera, title: 'Mesures amb fotos', desc: 'Col·loca cubs 3D sobre fotos' },
+    { icon: Box, title: 'Dimensions precises', desc: 'Guarda ample, alt i fondària' },
   ];
 
   return (
@@ -43,7 +43,7 @@ export function AuthPage() {
           <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center shadow-glow">
             <Ruler className="w-5 h-5 text-primary-foreground" />
           </div>
-          <span className="font-display text-xl font-bold text-foreground">MeasureSpace</span>
+          <span className="font-display text-xl font-bold text-foreground">Cubbuc</span>
         </div>
       </header>
 
@@ -57,12 +57,12 @@ export function AuthPage() {
             className="text-center lg:text-left"
           >
             <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-4">
-              Measure Your
-              <span className="text-gradient block">Dream Space</span>
+              Mesura el teu
+              <span className="text-gradient block">Espai Ideal</span>
             </h1>
             <p className="text-lg text-muted-foreground mb-8 max-w-md mx-auto lg:mx-0">
-              Plan your home redesign with precision. Upload photos, place 3D measurement boxes, 
-              and track all dimensions in one place.
+              Planifica el redisseny de casa teva amb precisió. Puja fotos, col·loca cubs 
+              de mesura 3D i guarda totes les dimensions en un sol lloc.
             </p>
 
             <div className="grid sm:grid-cols-3 gap-4 mb-8">
@@ -91,12 +91,12 @@ export function AuthPage() {
             <Card className="shadow-float border-0">
               <CardHeader className="text-center pb-2">
                 <CardTitle className="font-display text-2xl">
-                  {isSignUp ? 'Create Account' : 'Welcome Back'}
+                  {isSignUp ? 'Crear compte' : 'Benvingut/da'}
                 </CardTitle>
                 <CardDescription>
                   {isSignUp
-                    ? 'Start measuring your dream space today'
-                    : 'Sign in to access your measurements'}
+                    ? 'Comença a mesurar el teu espai ideal avui'
+                    : 'Inicia sessió per accedir als teus cubs'}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -124,7 +124,7 @@ export function AuthPage() {
                       d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                     />
                   </svg>
-                  Continue with Google
+                  Continuar amb Google
                 </Button>
 
                 <div className="relative">
@@ -132,17 +132,17 @@ export function AuthPage() {
                     <span className="w-full border-t" />
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-card px-2 text-muted-foreground">Or continue with email</span>
+                    <span className="bg-card px-2 text-muted-foreground">O continua amb email</span>
                   </div>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                   {isSignUp && (
                     <div className="space-y-2">
-                      <Label htmlFor="displayName">Name</Label>
+                      <Label htmlFor="displayName">Nom</Label>
                       <Input
                         id="displayName"
-                        placeholder="Your name"
+                        placeholder="El teu nom"
                         value={displayName}
                         onChange={(e) => setDisplayName(e.target.value)}
                         required={isSignUp}
@@ -154,14 +154,14 @@ export function AuthPage() {
                     <Input
                       id="email"
                       type="email"
-                      placeholder="you@example.com"
+                      placeholder="tu@example.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="password">Password</Label>
+                    <Label htmlFor="password">Contrasenya</Label>
                     <Input
                       id="password"
                       type="password"
@@ -177,18 +177,18 @@ export function AuthPage() {
                   )}
 
                   <Button type="submit" variant="hero" size="lg" className="w-full" disabled={isLoading}>
-                    {isLoading ? 'Please wait...' : isSignUp ? 'Create Account' : 'Sign In'}
+                    {isLoading ? 'Espera...' : isSignUp ? 'Crear compte' : 'Iniciar sessió'}
                   </Button>
                 </form>
 
                 <p className="text-center text-sm text-muted-foreground">
-                  {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
+                  {isSignUp ? 'Ja tens un compte?' : 'No tens un compte?'}{' '}
                   <button
                     type="button"
                     onClick={() => setIsSignUp(!isSignUp)}
                     className="text-primary hover:underline font-medium"
                   >
-                    {isSignUp ? 'Sign in' : 'Sign up'}
+                    {isSignUp ? 'Inicia sessió' : 'Registra\'t'}
                   </button>
                 </p>
               </CardContent>
@@ -199,7 +199,7 @@ export function AuthPage() {
 
       {/* Footer */}
       <footer className="p-4 text-center text-sm text-muted-foreground">
-        <p>Connect Firebase for full functionality • Demo mode enabled</p>
+        <p>Connectat amb Firebase • Mode actiu</p>
       </footer>
     </div>
   );
