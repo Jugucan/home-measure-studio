@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Box3D, BOX_COLORS } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -32,19 +32,24 @@ export function DimensionInputSheet({
   const [label, setLabel] = useState('');
   const [color, setColor] = useState(BOX_COLORS[0].name);
   const [notes, setNotes] = useState('');
+  const [isInitialized, setIsInitialized] = useState(false);
 
+  // Inicialitzar només quan s'obre la finestra
   useEffect(() => {
-    if (box) {
+    if (open && box && !isInitialized) {
       setWidth(box.dimensions.width > 0 ? String(box.dimensions.width) : '');
       setHeight(box.dimensions.height > 0 ? String(box.dimensions.height) : '');
       setDepth(box.dimensions.depth > 0 ? String(box.dimensions.depth) : '');
       setLabel(box.label);
       setColor(box.color);
       setNotes(box.notes || '');
+      setIsInitialized(true);
+    } else if (!open) {
+      setIsInitialized(false);
     }
-  }, [box]);
+  }, [open, box, isInitialized]);
 
-  const handleSave = () => {
+  const handleSave = useCallback(() => {
     onSave(
       {
         width: parseFloat(width) || 0,
@@ -56,13 +61,16 @@ export function DimensionInputSheet({
       notes
     );
     onOpenChange(false);
-  };
+  }, [width, height, depth, label, color, notes, onSave, onOpenChange]);
+
+  // Si no hi ha box, no renderitzar res
+  if (!box) return null;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent 
         side="bottom" 
-        className="h-auto max-h-[90vh] rounded-t-3xl px-4 sm:px-6 pb-6 overflow-y-auto"
+        className="h-auto max-h-[90vh] rounded-t-3xl px-4 sm:px-6 pb-6 overflow-y-auto will-change-transform"
       >
         <SheetHeader className="text-left pb-4 pt-2">
           <SheetTitle className="font-display text-xl">Editar mesura</SheetTitle>
