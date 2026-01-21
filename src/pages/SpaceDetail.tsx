@@ -163,7 +163,18 @@ export function SpaceDetail() {
     }
   };
 
-  const selectedBox = selectedMeasurement?.boxes.find(b => b.id === selectedBoxId) || null;
+  // Memoritzar el box quan s'obre la finestra per evitar re-renders
+const [boxSnapshot, setBoxSnapshot] = useState<Box3D | null>(null);
+const selectedBox = selectedMeasurement?.boxes.find(b => b.id === selectedBoxId) || null;
+
+// Actualitzar el snapshot només quan s'obre la finestra
+useEffect(() => {
+  if (dimensionSheetOpen && selectedBox) {
+    setBoxSnapshot(selectedBox);
+  } else if (!dimensionSheetOpen) {
+    setBoxSnapshot(null);
+  }
+}, [dimensionSheetOpen, selectedBox?.id]);
 
   return (
     <div className="min-h-screen gradient-hero">
@@ -368,7 +379,7 @@ export function SpaceDetail() {
       <DimensionInputSheet
         open={dimensionSheetOpen}
         onOpenChange={setDimensionSheetOpen}
-        box={selectedBox}
+        box={boxSnapshot || selectedBox}
         onSave={handleSaveDimensions}
       />
 
