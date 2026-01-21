@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Plus, Camera, Upload, Trash2, ChevronDown, Pencil } from 'lucide-react';
@@ -163,18 +163,9 @@ export function SpaceDetail() {
     }
   };
 
-  // Memoritzar el box quan s'obre la finestra per evitar re-renders
-const [boxSnapshot, setBoxSnapshot] = useState<Box3D | null>(null);
-const selectedBox = selectedMeasurement?.boxes.find(b => b.id === selectedBoxId) || null;
-
-// Actualitzar el snapshot només quan s'obre la finestra
-useEffect(() => {
-  if (dimensionSheetOpen && selectedBox) {
-    setBoxSnapshot(selectedBox);
-  } else if (!dimensionSheetOpen) {
-    setBoxSnapshot(null);
-  }
-}, [dimensionSheetOpen, selectedBox?.id]);
+  const selectedBox = useMemo(() => {
+    return selectedMeasurement?.boxes.find(b => b.id === selectedBoxId) || null;
+  }, [selectedMeasurement?.boxes, selectedBoxId]);
 
   return (
     <div className="min-h-screen gradient-hero">
@@ -377,9 +368,10 @@ useEffect(() => {
 
       {/* Dimension Input Sheet */}
       <DimensionInputSheet
+        key={selectedBoxId || 'none'}
         open={dimensionSheetOpen}
         onOpenChange={setDimensionSheetOpen}
-        box={boxSnapshot || selectedBox}
+        box={selectedBox}
         onSave={handleSaveDimensions}
       />
 
