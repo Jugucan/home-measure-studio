@@ -388,7 +388,6 @@ export function SpaceDetail() {
 
       {/* Dimension Input Sheet */}
       <DimensionInputSheet
-        key={selectedBoxId || 'none'}
         open={dimensionSheetOpen}
         onOpenChange={setDimensionSheetOpen}
         box={selectedBox}
