@@ -32,22 +32,17 @@ export function DimensionInputSheet({
   const [label, setLabel] = useState('');
   const [color, setColor] = useState(BOX_COLORS[0].name);
   const [notes, setNotes] = useState('');
-  const [isInitialized, setIsInitialized] = useState(false);
 
-  // Inicialitzar només quan s'obre la finestra
   useEffect(() => {
-    if (open && box && !isInitialized) {
+    if (open && box) {
       setWidth(box.dimensions.width > 0 ? String(box.dimensions.width) : '');
       setHeight(box.dimensions.height > 0 ? String(box.dimensions.height) : '');
       setDepth(box.dimensions.depth > 0 ? String(box.dimensions.depth) : '');
       setLabel(box.label);
       setColor(box.color);
       setNotes(box.notes || '');
-      setIsInitialized(true);
-    } else if (!open) {
-      setIsInitialized(false);
     }
-  }, [open, box, isInitialized]);
+  }, [open, box?.id]);
 
   const handleSave = useCallback(() => {
     onSave(
@@ -63,7 +58,6 @@ export function DimensionInputSheet({
     onOpenChange(false);
   }, [width, height, depth, label, color, notes, onSave, onOpenChange]);
 
-  // Si no hi ha box, no renderitzar res
   if (!box) return null;
 
   return (
