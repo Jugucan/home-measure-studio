@@ -332,36 +332,67 @@ function drawMeasurements(
 ) {
   const { width, height, depth } = box.dimensions;
 
-  ctx.font = 'bold 22px Inter, sans-serif';
+  // Font més petita i elegant
+  ctx.font = '600 14px Inter, system-ui, sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
 
   // Width (bottom edge)
   if (width > 0) {
     const midX = (v[0].x + v[1].x) / 2;
-    const midY = (v[0].y + v[1].y) / 2 + 30;
-    drawTextWithOutline(ctx, `${width}cm`, midX, midY);
+    const midY = (v[0].y + v[1].y) / 2 + 20;
+    drawTextWithBackground(ctx, `${width}cm`, midX, midY);
   }
 
   // Height (left edge)
   if (height > 0) {
-    const midX = (v[0].x + v[3].x) / 2 - 35;
+    const midX = (v[0].x + v[3].x) / 2 - 25;
     const midY = (v[0].y + v[3].y) / 2;
-    drawTextWithOutline(ctx, `${height}cm`, midX, midY);
+    drawTextWithBackground(ctx, `${height}cm`, midX, midY);
   }
 
   // Depth (diagonal edge)
   if (depth > 0) {
-    const midX = (v[0].x + v[4].x) / 2 + 25;
-    const midY = (v[0].y + v[4].y) / 2 - 15;
-    drawTextWithOutline(ctx, `${depth}cm`, midX, midY);
+    const midX = (v[0].x + v[4].x) / 2 + 20;
+    const midY = (v[0].y + v[4].y) / 2 - 10;
+    drawTextWithBackground(ctx, `${depth}cm`, midX, midY);
   }
 }
 
-function drawTextWithOutline(ctx: CanvasRenderingContext2D, text: string, x: number, y: number) {
-  ctx.strokeStyle = '#fff';
-  ctx.lineWidth = 4;
-  ctx.strokeText(text, x, y);
+function drawTextWithBackground(ctx: CanvasRenderingContext2D, text: string, x: number, y: number) {
+  // Mesurar el text
+  const metrics = ctx.measureText(text);
+  const textWidth = metrics.width;
+  const textHeight = 14; // Altura aproximada del text
+  const padding = 6;
+  
+  // Dibuixar fons semi-transparent
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+  ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
+  ctx.lineWidth = 1;
+  
+  const rectX = x - textWidth / 2 - padding;
+  const rectY = y - textHeight / 2 - padding;
+  const rectWidth = textWidth + padding * 2;
+  const rectHeight = textHeight + padding * 2;
+  
+  // Rectangle arrodonit
+  ctx.beginPath();
+  const radius = 4;
+  ctx.moveTo(rectX + radius, rectY);
+  ctx.lineTo(rectX + rectWidth - radius, rectY);
+  ctx.quadraticCurveTo(rectX + rectWidth, rectY, rectX + rectWidth, rectY + radius);
+  ctx.lineTo(rectX + rectWidth, rectY + rectHeight - radius);
+  ctx.quadraticCurveTo(rectX + rectWidth, rectY + rectHeight, rectX + rectWidth - radius, rectY + rectHeight);
+  ctx.lineTo(rectX + radius, rectY + rectHeight);
+  ctx.quadraticCurveTo(rectX, rectY + rectHeight, rectX, rectY + rectHeight - radius);
+  ctx.lineTo(rectX, rectY + radius);
+  ctx.quadraticCurveTo(rectX, rectY, rectX + radius, rectY);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  
+  // Dibuixar text
   ctx.fillStyle = '#1a1a1a';
   ctx.fillText(text, x, y);
 }
@@ -381,22 +412,37 @@ function isPointInBox(pos: { x: number; y: number }, box: Box3D): boolean {
 export function createDefaultBox3D(imageWidth: number, imageHeight: number, colorIndex: number): Omit<Box3D, 'id'> {
   const centerX = imageWidth / 2;
   const centerY = imageHeight / 2;
-  // Fer el cub MOLT més gran (70% de la imatge en lloc de 30%)
-  const size = Math.min(imageWidth, imageHeight) * 0.7;
-  const depth = size * 0.4;
+  
+  // Ajustar la mida segons l'orientació de la imatge
+  const isVertical = imageHeight > imageWidth;
+  const baseSize = Math.min(imageWidth, imageHeight);
+  
+  // Si és vertical, fer el cub més petit i centrat millor
+  const sizePercent = isVertical ? 0.5 : 0.65;
+  const size = baseSize * sizePercent;
+  const depth = size * 0.35;
+  
+  // Afegir marge de seguretat per evitar que els vèrtex surtin fora
+  const margin = 40;
+  const maxSize = Math.min(
+    imageWidth - margin * 2,
+    imageHeight - margin * 2
+  );
+  
+  const finalSize = Math.min(size, maxSize);
 
   return {
     vertices: [
       // Front face (bottom-left, bottom-right, top-right, top-left)
-      { x: centerX - size / 2, y: centerY + size / 2 },
-      { x: centerX + size / 2, y: centerY + size / 2 },
-      { x: centerX + size / 2, y: centerY - size / 2 },
-      { x: centerX - size / 2, y: centerY - size / 2 },
+      { x: centerX - finalSize / 2, y: centerY + finalSize / 2 },
+      { x: centerX + finalSize / 2, y: centerY + finalSize / 2 },
+      { x: centerX + finalSize / 2, y: centerY - finalSize / 2 },
+      { x: centerX - finalSize / 2, y: centerY - finalSize / 2 },
       // Back face (offset for 3D effect)
-      { x: centerX - size / 2 + depth, y: centerY + size / 2 - depth },
-      { x: centerX + size / 2 + depth, y: centerY + size / 2 - depth },
-      { x: centerX + size / 2 + depth, y: centerY - size / 2 - depth },
-      { x: centerX - size / 2 + depth, y: centerY - size / 2 - depth },
+      { x: centerX - finalSize / 2 + depth, y: centerY + finalSize / 2 - depth },
+      { x: centerX + finalSize / 2 + depth, y: centerY + finalSize / 2 - depth },
+      { x: centerX + finalSize / 2 + depth, y: centerY - finalSize / 2 - depth },
+      { x: centerX - finalSize / 2 + depth, y: centerY - finalSize / 2 - depth },
     ],
     dimensions: { width: 0, height: 0, depth: 0 },
     label: '',
