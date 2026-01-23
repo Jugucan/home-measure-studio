@@ -268,7 +268,8 @@ function drawBox3D(
 
   if (v.length < 8) return;
 
-  ctx.lineWidth = isSelected ? 6 : 5;
+  // Línies més fines i elegants
+  ctx.lineWidth = isSelected ? 3 : 2;
   ctx.strokeStyle = color;
   // Augmentar l'opacitat de 0.15 a 0.45 per fer-la més visible
   ctx.fillStyle = color.replace(')', ', 0.45)').replace('hsl', 'hsla');
@@ -303,14 +304,15 @@ function drawBox3D(
   }
   ctx.setLineDash([]);
 
-  // Draw vertices (més grans per facilitar clic)
+  // Vèrtex més petits i elegants
   v.forEach((vertex, i) => {
     ctx.beginPath();
-    ctx.arc(vertex.x, vertex.y, isSelected ? 12 : 10, 0, Math.PI * 2);
-    ctx.fillStyle = color;
+    // Vèrtex més petits: 7px si està seleccionat, 6px si no
+    ctx.arc(vertex.x, vertex.y, isSelected ? 7 : 6, 0, Math.PI * 2);
+    ctx.fillStyle = '#ffffff';
     ctx.fill();
-    ctx.strokeStyle = '#fff';
-    ctx.lineWidth = 3;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
     ctx.stroke();
   });
 
@@ -379,7 +381,8 @@ function isPointInBox(pos: { x: number; y: number }, box: Box3D): boolean {
 export function createDefaultBox3D(imageWidth: number, imageHeight: number, colorIndex: number): Omit<Box3D, 'id'> {
   const centerX = imageWidth / 2;
   const centerY = imageHeight / 2;
-  const size = Math.min(imageWidth, imageHeight) * 0.3;
+  // Fer el cub MOLT més gran (70% de la imatge en lloc de 30%)
+  const size = Math.min(imageWidth, imageHeight) * 0.7;
   const depth = size * 0.4;
 
   return {
