@@ -55,7 +55,7 @@ export const BOX_COLORS = [
 ];
 
 export const SPACE_ICONS = [
-  { name: 'Kitchen', icon: '🍳' },
+  { name: 'Kitchen', icon: '🍽️' },
   { name: 'Bedroom', icon: '🛏️' },
   { name: 'Bathroom', icon: '🚿' },
   { name: 'Living Room', icon: '🛋️' },
@@ -64,4 +64,6 @@ export const SPACE_ICONS = [
   { name: 'Garage', icon: '🚗' },
   { name: 'Garden', icon: '🌿' },
   { name: 'Other', icon: '📦' },
+  { name: 'Bugaderia', icon: '🧼' },
+  { name: 'Menjador', icon: '🪑' },
 ];
