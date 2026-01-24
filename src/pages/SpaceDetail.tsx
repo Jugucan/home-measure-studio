@@ -334,7 +334,7 @@ export function SpaceDetail() {
             {/* Measurement Summary */}
             <div>
               <h3 className="font-display text-lg font-semibold text-foreground mb-3">
-                Mesures
+                Mides
               </h3>
               <MeasurementSummary
                 boxes={selectedMeasurement.boxes}
