@@ -111,7 +111,7 @@ export function DimensionInputSheet({
               </div>
               <div className="space-y-2">
                 <Label htmlFor="depth" className="text-xs text-muted-foreground">
-                  Fondària
+                  Fons
                 </Label>
                 <Input
                   id="depth"
