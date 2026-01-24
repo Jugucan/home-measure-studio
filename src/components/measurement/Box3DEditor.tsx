@@ -80,12 +80,15 @@ export function Box3DEditor({
     ctx.drawImage(image, 0, 0);
     ctx.restore();
 
-    // Draw boxes
+    // Draw boxes (només els visibles)
     boxes.forEach((box) => {
-      const isSelected = box.id === selectedBoxId;
-      const color = BOX_COLORS.find(c => c.name === box.color)?.value || BOX_COLORS[0].value;
-      
-      drawBox3D(ctx, box, color, isSelected, scale, offset);
+      // Només dibuixar si és visible (per defecte visible si no està definit)
+      if (box.visible !== false) {
+        const isSelected = box.id === selectedBoxId;
+        const color = BOX_COLORS.find(c => c.name === box.color)?.value || BOX_COLORS[0].value;
+        
+        drawBox3D(ctx, box, color, isSelected, scale, offset);
+      }
     });
   }, [image, boxes, selectedBoxId, scale, offset, containerSize]);
 
